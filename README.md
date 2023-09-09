@@ -47,7 +47,7 @@ pip install MLDockKit
 >>>prot_lig_docking("Oc1ccc2c(c1)S[C@H](c1ccco1)[C@H](c1ccc(OCCN3CCCCC3)cc1)O2")
 ```
 #### Visualization of docking results
-This opens pymol for visulization and analysis. If you need help on pymol analysis please have a look on pymol documentation on 
+This opens pymol for visulization and analysis. If you need help on pymol analysis please have a look on pymol documentation on, 
 [https://fitzkee.chemistry.msstate.edu/sites/default/files/ch8990/pymol-tutorial.pdf](beginer's guide)
 ```python
 >>>from MLDockKit import vizualize_dock_results
