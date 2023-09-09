@@ -13,8 +13,8 @@ The package is found on pypi hence can be installed with pip
 #### Installation
 It is important to ensure that all the required dependencies are installed in your working environment. It would be much easier if you create a conda environment before installation of packages. The following packages are required, **pymol**, **rdkit**, **pandas**, **padelpy**, **joblib**, **meeko**, **Autodock Vina**, **java**, **scipy**, and **scikit-learn**.
 ```bash
-conda create -n predict_and_dock
-conda activate predict_and_dock
+conda create -n MLDockKit
+conda activate MLDockKit
 ```
 Then, install pymol before installing other packages:
 ```bash
