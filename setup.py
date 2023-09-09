@@ -9,7 +9,7 @@ setuptools.setup(
     version="0.0.1",
     include_package_data=True,
     description='Python package that calculates Lipinsky descriptors, predicts pIC50 and performs docking',
-    url = "https://github.com/clabe-wekesa/predict_and_dock",
+    url = "https://github.com/clabe-wekesa/MLDockKit",
     license = "MIT",
     packages=setuptools.find_packages(),
     install_requires=[
@@ -20,7 +20,7 @@ setuptools.setup(
     author_email='simiyu86wekesa@gmail.com',  
     package_data={
         # Include your non-Python files here
-        'predict_and_dock': ['padel_model.joblib', '5gs4.pdbqt'],
+        'MLDockKit': ['padel_model.joblib', '5gs4.pdbqt'],
     },
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",

@@ -68,7 +68,7 @@ def calculate_lipinski_descriptors(smiles):
 
     Usage
     -----
-    from predict_and_dock import calculate_lipinski_descriptors
+    from MLDockKit import calculate_lipinski_descriptors
 
     calculate_lipinski_descriptors("Oc1ccc2c(c1)S[C@H](c1ccco1)[C@H](c1ccc(OCCN3CCCCC3)cc1)O2")
     """
@@ -120,7 +120,7 @@ def predict_pIC50(smiles):
 
     Usage
     -----
-    from predict_and_dock import predict_pIC50
+    from MLDockKit import predict_pIC50
 
     predict_pIC50("Oc1ccc2c(c1)S[C@H](c1ccco1)[C@H](c1ccc(OCCN3CCCCC3)cc1)O2")
     """
@@ -176,7 +176,7 @@ def prot_lig_docking(smiles):
 
     Usage
     -----
-    from predict_and_dock import prot_lig_docking
+    from MLDockKit import prot_lig_docking
 
     prot_lig_docking("Oc1ccc2c(c1)S[C@H](c1ccco1)[C@H](c1ccc(OCCN3CCCCC3)cc1)O2")
     """
@@ -255,7 +255,7 @@ def vizualize_dock_results():
 
     Usage
     -----
-    from predict_and_dock import vizualize_dock_results
+    from MLDockKit import vizualize_dock_results
 
     vizualize_dock_results()
     """

@@ -33,31 +33,34 @@ pip install MLDockKit
 ### Usage
 #### Computating Lipinsky descriptors
 ```python
->>>from predict_and_dock import calculate_lipinski_descriptors
+>>>from MLDockKit import calculate_lipinski_descriptors
 >>>calculate_lipinski_descriptors("Oc1ccc2c(c1)S[C@H](c1ccco1)[C@H](c1ccc(OCCN3CCCCC3)cc1)O2")
 ```
 #### Predictioning pIC50
 ```python
->>>from predict_and_dock import predict_pIC50
+>>>from MLDockKit import predict_pIC50
 >>>predict_pIC50("Oc1ccc2c(c1)S[C@H](c1ccco1)[C@H](c1ccc(OCCN3CCCCC3)cc1)O2")
 ```
 #### Docking with protein, pdb_id 5gs4
 ```python
->>>from predict_and_dock import prot_lig_docking
+>>>from MLDockKit import prot_lig_docking
 >>>prot_lig_docking("Oc1ccc2c(c1)S[C@H](c1ccco1)[C@H](c1ccc(OCCN3CCCCC3)cc1)O2")
 ```
 #### Visualization of docking results
+This opens pymol for visulization and analysis. If you need help on pymol analysis please have a look on pymol documentation on 
+[https://fitzkee.chemistry.msstate.edu/sites/default/files/ch8990/pymol-tutorial.pdf](beginer's guide)
 ```python
->>>from predict_and_dock import vizualize_dock_results
+>>>from MLDockKit import vizualize_dock_results
 >>>vizualize_dock_results()
 ```
 
 ### Acknowledgment
-+ Autodock Vina and pymol were greatily used in writing the codes for molecular docking and visualization. If you use these functions in your work, please cite the original papers.
-+ We extracted part of Angel Ruiz Moreno's Jupyter_Dock [https://github.com/AngelRuizMoreno/Jupyter_Dock](Jupyter_Dock) to include it in our visualization function. 
+Autodock Vina and pymol were greatily used in writing the codes for molecular docking and visualization. If you use these functions in your work, please cite the original papers.
+
+We extracted part of Angel Ruiz Moreno's Jupyter_Dock [https://github.com/AngelRuizMoreno/Jupyter_Dock](Jupyter_Dock) to include it in our visualization function. 
 
 ### Contribution
-We welcome any contributions. Should you notice a bug, please let us know through issues in the github repository, [https://github.com/clabe-wekesa/predict_and_dock/issues](issues)
+We welcome any contributions. Should you notice a bug, please let us know through issues in the github repository, [https://github.com/clabe-wekesa/MLDockKit/issues](issues)
 
 
 ### Authors
