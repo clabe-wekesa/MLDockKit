@@ -48,7 +48,7 @@ pip install MLDockKit
 ```
 #### Visualization of docking results
 This opens pymol for visulization and analysis. If you need help on pymol analysis please have a look on pymol documentation on, 
-[<https://fitzkee.chemistry.msstate.edu/sites/default/files/ch8990/pymol-tutorial.pdf]>(beginer's guide)
+[<https://fitzkee.chemistry.msstate.edu/sites/default/files/ch8990/pymol-tutorial.pdf>](beginer's guide)
 ```python
 >>>from MLDockKit import vizualize_dock_results
 >>>vizualize_dock_results()
@@ -64,5 +64,5 @@ We welcome any contributions. Should you notice a bug, please let us know throug
 
 
 ### Authors
-***Edwin mwakio, Dr. Clabe Wekesa and Dr. Patrick Okoth***
+**Edwin mwakio, Dr. Clabe Wekesa and Dr. Patrick Okoth**
 Department of Biological Sciences, Masinde Muliro University of Science and Technology, [<https://www.mmust.ac.ke/>](MMUST) 
