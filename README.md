@@ -48,7 +48,7 @@ pip install MLDockKit
 ```
 #### Visualization of docking results
 This opens pymol for visulization and analysis. If you need help on pymol analysis please have a look on pymol documentation on, 
-[https://fitzkee.chemistry.msstate.edu/sites/default/files/ch8990/pymol-tutorial.pdf](beginer's guide)
+[<https://fitzkee.chemistry.msstate.edu/sites/default/files/ch8990/pymol-tutorial.pdf]>(beginer's guide)
 ```python
 >>>from MLDockKit import vizualize_dock_results
 >>>vizualize_dock_results()
@@ -57,10 +57,10 @@ This opens pymol for visulization and analysis. If you need help on pymol analys
 ### Acknowledgment
 Autodock Vina and pymol were greatily used in writing the codes for molecular docking and visualization. If you use these functions in your work, please cite the original papers.
 
-We extracted part of Angel Ruiz Moreno's Jupyter_Dock [https://github.com/AngelRuizMoreno/Jupyter_Dock](Jupyter_Dock) to include it in our visualization function. 
+We extracted part of Angel Ruiz Moreno's Jupyter_Dock [<https://github.com/AngelRuizMoreno/Jupyter_Dock>](Jupyter_Dock) to include it in our visualization function. 
 
 ### Contribution
-We welcome any contributions. Should you notice a bug, please let us know through issues in the github repository, [issues]([https://website-name.com](https://github.com/clabe-wekesa/MLDockKit/issues))
+We welcome any contributions. Should you notice a bug, please let us know through issues in the github repository, [<https://github.com/clabe-wekesa/MLDockKit/issues>](issues)
 
 
 ### Authors
