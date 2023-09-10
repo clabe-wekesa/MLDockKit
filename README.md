@@ -60,9 +60,9 @@ Autodock Vina and pymol were greatily used in writing the codes for molecular do
 We extracted part of Angel Ruiz Moreno's Jupyter_Dock [https://github.com/AngelRuizMoreno/Jupyter_Dock](Jupyter_Dock) to include it in our visualization function. 
 
 ### Contribution
-We welcome any contributions. Should you notice a bug, please let us know through issues in the github repository, (https://github.com/clabe-wekesa/MLDockKit/issues)[issues]
+We welcome any contributions. Should you notice a bug, please let us know through issues in the github repository, [issues]([https://website-name.com](https://github.com/clabe-wekesa/MLDockKit/issues))
 
 
 ### Authors
-Edwin mwakio, Dr. Clabe Wekesa and Dr. Patrick Okoth
+***Edwin mwakio, Dr. Clabe Wekesa and Dr. Patrick Okoth***
 Department of Biological Sciences, Masinde Muliro University of Science and Technology, [https://www.mmust.ac.ke/](MMUST) 
