@@ -65,4 +65,4 @@ We welcome any contributions. Should you notice a bug, please let us know throug
 
 ### Authors
 ***Edwin mwakio, Dr. Clabe Wekesa and Dr. Patrick Okoth***
-Department of Biological Sciences, Masinde Muliro University of Science and Technology, [https://www.mmust.ac.ke/](MMUST) 
+Department of Biological Sciences, Masinde Muliro University of Science and Technology, [<https://www.mmust.ac.ke/>](MMUST) 
