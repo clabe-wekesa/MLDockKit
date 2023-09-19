@@ -64,5 +64,5 @@ We welcome any contributions. Should you notice a bug, please let us know throug
 
 ### Authors
 **Edwin mwakio, Dr. Clabe Wekesa and Dr. Patrick Okoth**  
-Department of Biological Sciences, Masinde Muliro University of Science and Technology, [Masinde Muliro University of Science and Technology](https://www.mmust.ac.ke/) [OpenAI](https://www.openai.com/)
+Department of Biological Sciences, Masinde Muliro University of Science and Technology, [Masinde Muliro University of Science and Technology](https://www.mmust.ac.ke/) [MMUST]([https://www.openai.com/](https://www.mmust.ac.ke/)https://www.mmust.ac.ke/)
  
