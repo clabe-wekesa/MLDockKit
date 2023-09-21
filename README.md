@@ -63,6 +63,6 @@ We welcome any contributions. Should you notice a bug, please let us know throug
 
 
 ### Authors
-Edwin mwakio, Dr. Clabe Wekesa and [Clabe Wekesa](https://www.ice.mpg.de/246268/group-members) and [Patrick Okoth](https://mmust.ac.ke/staffprofiles/index.php/dr-patrick-okoth),
+Edwin mwakio, [Dr. Clabe Wekesa](https://www.ice.mpg.de/246268/group-members) and [Dr. Patrick Okoth](https://mmust.ac.ke/staffprofiles/index.php/dr-patrick-okoth),  
 Department of Biological Sciences, [Masinde Muliro University of Science and Technology](https://www.mmust.ac.ke/)
  
