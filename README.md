@@ -27,8 +27,6 @@ conda install -c cyclus java-jre
 
 pip install -U numpy vina
 
-pip install rdkit pandas padelpy joblib meeko scikit-learn scipy
-
 pip install MLDockKit
 ```
 

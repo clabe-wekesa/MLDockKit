@@ -6,7 +6,7 @@ with open('README.md', 'r', encoding='utf-8') as readme_file:
 
 setuptools.setup(
     name="MLDockKit",
-    version="0.0.1",
+    version="0.0.4",
     include_package_data=True,
     description='Python package that calculates Lipinsky descriptors, predicts pIC50 and performs docking',
     url = "https://github.com/clabe-wekesa/MLDockKit",
@@ -14,7 +14,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         # List your Python dependencies here
-        'rdkit', 'pandas', 'padelpy', 'joblib', 'meeko', 'scikit-learn', 'scipy', 'numpy'
+        'rdkit', 'pandas', 'padelpy', 'joblib', 'meeko', 'scikit-learn==1.3.0', 'scipy', 'numpy'
     ],
     author='Edwin Mwakio, Clabe Wekesa, Patrick okoth',
     author_email='simiyu86wekesa@gmail.com',  
