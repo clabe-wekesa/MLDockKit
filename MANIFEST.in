@@ -1,0 +1,5 @@
+include README.md
+include LICENSE
+include MLDockKit/padel_model.joblib
+include MLDockKit/5gs4.pdbqt
+recursive-include MLDockKit/meeko *
