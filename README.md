@@ -18,6 +18,8 @@ It is important to ensure that all the required dependencies are installed in yo
 conda create -n MLDockKit python=3.11
 conda activate MLDockKit
 ```
+MLDockKit requires [meeko](https://github.com/forlilab/Meeko) for ligand preparation. The current version of Meeko is compatible only with Python 3.11 or lower. We will update MLDockKit to support higher Python versions once Meeko is updated.
+
 Then, install pymol before installing other packages:
 ```bash
 conda install -c conda-forge pymol-open-source openbabel vina numpy
@@ -40,10 +42,10 @@ MLDockKit(
     show_iAA=False
 )
 ```
-MLDockKit requires [meeko](https://github.com/forlilab/Meeko) for ligand preparation. The current version of Meeko is compatible only with Python 3.11 or lower. We will update MLDockKit to support higher Python versions once Meeko is updated.
+
+### Params:
 
 ```bash
-### Params:
 1. smiles (str): SMILES string for ligand.
 2. output_file (str): File path for saving output.
 3. presentation (str): How to display the receptor [[e.g., 'surface', 'sticks', 'spheres', 'cartoon', etc.] default: 'cartoon')].
@@ -64,4 +66,3 @@ We welcome any contributions. Should you notice a bug, please let us know throug
 ### Authors
 Edwin mwakio, [Clabe Wekesa](https://www.ice.mpg.de/246268/group-members) and [Patrick Okoth](https://mmust.ac.ke/staffprofiles/index.php/dr-patrick-okoth)  
 Department of Biological Sciences, [Masinde Muliro University of Science and Technology](https://www.mmust.ac.ke/)
- 
