@@ -13,16 +13,16 @@ The package is found on pypi hence can be installed with pip
 Installation of Vina requires [boost](https://www.boost.org/doc/libs/1_83_0/tools/build/doc/html/index.html#bbv2.installation) and [swig](https://www.swig.org/)  
 Importantly: Install pymol as the first package in the new environment, this is due to environmental package conflict.
 #### Installation
-It is important to ensure that all the required dependencies are installed in your working environment. It would be much easier if you create a conda environment before installation of packages. The following packages are required, **pymol**, **rdkit**, **pandas**, **padelpy**, **joblib**, **meeko**, **Autodock Vina**, **java**, **scipy**, **MDAnalysis** and **scikit-learn**.
+It is important to ensure that all the required dependencies are installed in your working environment. It would be much easier if you create a conda environment before installation of packages. The following packages are required, **pymol**, **rdkit**, **pandas**, **gemmi**, **padelpy**, **joblib**,**openbabel**, **Autodock Vina**, **java**, **scipy**, **MDAnalysis** and **scikit-learn**.
 ```bash
-conda create -n MLDockKit python=3.11
+conda create -n MLDockKit
 conda activate MLDockKit
 ```
-MLDockKit requires [meeko](https://github.com/forlilab/Meeko) for ligand preparation. The current version of Meeko is compatible only with Python 3.11 or lower. We will update MLDockKit to support higher Python versions once Meeko is updated.
+MLDockKit requires [meeko](https://github.com/forlilab/Meeko) for ligand preparation. The current release of Meeko is compatible only with Python 3.11 or lower. Be advised that only [development version from the source] (https://meeko.readthedocs.io/en/release-doc/installation.html#from-source) can be installed in MLDockKi environment.
 
 Then, install pymol before installing other packages:
 ```bash
-conda install -c conda-forge pymol-open-source openbabel vina numpy
+conda install -c conda-forge pymol-open-source vina mdanalysis 
 
 conda install -c cyclus java-jre
 
@@ -34,24 +34,27 @@ pip install MLDockKit
 ```python
 from MLDockKit import MLDockKit
 
-MLDockKit(
-    smiles="Oc1ccc2c(c1)S[C@H](c1ccco1)[C@H](c1ccc(OCCN3CCCCC3)cc1)O2", 
-    output_file="docking_results.txt",
-    presentation="cartoon", 
-    label_residues=True, 
-    show_iAA=False
-)
+MLDockKit(smiles,output_file,presentation,label_residues,show_iAA)
 ```
 
 ### Params:
 
 ```bash
 1. smiles (str): SMILES string for ligand.
-2. output_file (str): File path for saving output.
+2. output_file (str): File path for saving output [default: "MLDockKit_results.txt"].
 3. presentation (str): How to display the receptor [[e.g., 'surface', 'sticks', 'spheres', 'cartoon', etc.] default: 'cartoon')].
-4. label_residues (bool): Option to label residues (default: True).
-5. show_iAA (bool): Option to show interacting amino acids only (default: True).
+4. label_residues (bool): Option to label residues that inteacts with the ligand (default: True).
+5. show_iAA (bool): Option to show interacting amino acid residues only (default: True).
 ```
+
+### Example running with default settings
+
+```python
+from MLDockKit import MLDockKit
+
+MLDockKit(smiles="Oc1ccc2c(c1)S[C@H](c1ccco1)[C@H](c1ccc(OCCN3CCCCC3)cc1)O2")
+```
+
 ### Output
 The pipeline's output is an MLDockKit_output.txt file which contains **Lipinsky descriptos**, **predicted pIC50 value** and the **docking score**. Docking image is rentered in pymol for further analysis by the user. Also, the ligand's and protein's **.sfd** and **.pdpqt** files are rentered in the user's working directory.
 
@@ -66,3 +69,4 @@ We welcome any contributions. Should you notice a bug, please let us know throug
 ### Authors
 Edwin mwakio, [Clabe Wekesa](https://www.ice.mpg.de/246268/group-members) and [Patrick Okoth](https://mmust.ac.ke/staffprofiles/index.php/dr-patrick-okoth)  
 Department of Biological Sciences, [Masinde Muliro University of Science and Technology](https://www.mmust.ac.ke/)
+ 
