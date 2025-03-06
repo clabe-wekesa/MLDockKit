@@ -18,7 +18,7 @@ It is important to ensure that all the required dependencies are installed in yo
 conda create -n MLDockKit
 conda activate MLDockKit
 ```
-MLDockKit requires [meeko](https://github.com/forlilab/Meeko) for ligand preparation. The current release of Meeko is compatible only with Python 3.11 or lower. Be advised that only development version from the [source] (https://meeko.readthedocs.io/en/release-doc/installation.html#from-source) can be installed in MLDockKi environment.
+MLDockKit requires [meeko](https://github.com/forlilab/Meeko) for ligand preparation. The current release of Meeko is compatible only with Python 3.11 or lower. Be advised that only development version from the [source](https://meeko.readthedocs.io/en/release-doc/installation.html#from-source) can be installed in MLDockKi environment.
 
 Then, install pymol before installing other packages:
 ```bash
