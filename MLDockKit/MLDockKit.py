@@ -2,21 +2,23 @@
 # coding: utf-8
 
 import pandas as pd
-from openbabel import pybel
+import MDAnalysis as mda
+import pymol
 from rdkit import Chem
+from rdkit.Chem import AllChem
 from rdkit.Chem import Descriptors
 from padelpy import padeldescriptor
 import joblib
 import csv
 from rdkit.Chem import AllChem, SDWriter, SDMolSupplier
-from pymol import cmd
+from pymol import cmd,stored
 from vina import Vina
 import os
 import subprocess
 
 
 # constants
-docking_protein = "5gs4.pdbqt"
+docking_protein = "7te7_prepared.pdbqt"
 prediction_model = "padel_model.joblib"
 current_directory = os.getcwd()
 file_paths = ["ligand_clean.sdf", "ligand.pdbqt"]
@@ -33,93 +35,69 @@ def delete_files_with_extension(directory, extensions):
 # Delete files in the working directory
 current_directory = os.getcwd()
 #delete_files_with_extension(current_directory, [".sdf", ".pdbqt"])
-delete_files_with_extension(current_directory, [".sdf",".pdbqt"])            
+delete_files_with_extension(current_directory, [".sdf",".pdbqt"])
 
 
-def getbox(selection="sele", extending=6.0, software="vina"):
-    ([minX, minY, minZ], [maxX, maxY, maxZ]) = cmd.get_extent(selection)
+def prepare_ligand(input_sdf: str, output_pdbqt: str):
+    # Read the input molecule
+    mol = Chem.MolFromMolFile(input_sdf)
+    if mol is None:
+        raise ValueError(f"Invalid SDF file: {input_sdf}")
+    
+    # Generate 3D coordinates
+    AllChem.EmbedMolecule(mol, randomSeed=42)
+    AllChem.UFFOptimizeMolecule(mol)
 
-    minX = minX - float(extending)
-    minY = minY - float(extending)
-    minZ = minZ - float(extending)
-    maxX = maxX + float(extending)
-    maxY = maxY + float(extending)
-    maxZ = maxZ + float(extending)
-
-    SizeX = maxX - minX
-    SizeY = maxY - minY
-    SizeZ = maxZ - minZ
-    CenterX = (maxX + minX) / 2
-    CenterY = (maxY + minY) / 2
-    CenterZ = (maxZ + minZ) / 2
-
-    cmd.delete("all")
-
-    return {"center_x": CenterX, "center_y": CenterY, "center_z": CenterZ}, {
-        "size_x": SizeX,
-        "size_y": SizeY,
-        "size_z": SizeZ,
-    }
-
-
-def pdbqt_to_sdf(pdbqt_file=None, output=None):
-    results = [m for m in pybel.readfile(filename=pdbqt_file, format="pdbqt")]
-    out = pybel.Outputfile(filename=output, format="sdf", overwrite=True)
-    for pose in results:
-        pose.data.update({"Pose": pose.data["MODEL"]})
-        pose.data.update({"Score": pose.data["REMARK"].split()[2]})
-        del pose.data["MODEL"], pose.data["REMARK"], pose.data["TORSDO"]
-
-        out.write(pose)
-    out.close()
+    # Save as pdbqt
+    with open(output_pdbqt, 'w') as pdbqt_file:
+        pdbqt_file.write(Chem.MolToPDBBlock(mol))
 
 
 def calculate_lipinski_descriptors(smiles):
-    """Lipinski descriptors: A set of molecular properties used to assess the drug-likeness or pharmacokinetic profile of a chemical compound
+    """
+    Calculate Lipinski descriptors and assess Rule of 5 and Veber’s Rule violations.
 
-    Params
-    ------
-    smiles: string: An rdkit valid canonical SMILES or chemical structure a compound.
+    Parameters
+    ----------
+    smiles : str
+        An RDKit valid canonical SMILES or chemical structure of a compound.
 
-    Usage
-    -----
-    from MLDockKit import calculate_lipinski_descriptors
-
-    calculate_lipinski_descriptors("Oc1ccc2c(c1)S[C@H](c1ccco1)[C@H](c1ccc(OCCN3CCCCC3)cc1)O2")
+    Returns
+    -------
+    str
+        A formatted string of Lipinski descriptors with Rule of 5, Veber’s Rule, 
+        and interpretations for Carbon and Oxygen counts.
     """
 
     mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        raise ValueError("You entered an invalid SMILES string")
+    if not mol:
+        raise ValueError("Invalid SMILES string. Please provide a valid SMILES notation.")
 
-    else:
-        descriptors = {
-            "Molecular Weight": Descriptors.MolWt(mol),
-            "LogP": Descriptors.MolLogP(mol),
-            "Num H Donors": Descriptors.NumHDonors(mol),
-            "Num H Acceptors": Descriptors.NumHAcceptors(mol),
-            "Num Rotatable Bonds": Descriptors.NumRotatableBonds(mol),
-            "Carbon Count": Descriptors.HeavyAtomCount(mol),
-            "Oxygen Count": sum(
-                1 for atom in mol.GetAtoms() if atom.GetAtomicNum() == 8
-            ),
-        }
+    # Calculate Lipinski descriptors
+    molecular_weight = Descriptors.MolWt(mol)
+    logP = Descriptors.MolLogP(mol)
+    num_h_donors = Descriptors.NumHDonors(mol)
+    num_h_acceptors = Descriptors.NumHAcceptors(mol)
+    num_rotatable_bonds = Descriptors.NumRotatableBonds(mol)
+    carbon_count = sum(1 for atom in mol.GetAtoms() if atom.GetAtomicNum() == 6)
+    oxygen_count = sum(1 for atom in mol.GetAtoms() if atom.GetAtomicNum() == 8)
 
-        aliases = {
-            "Molecular Weight": "Molecular Weight",
-            "LogP": "LogP",
-            "Num H Donors": "Number Hydrogen Bond Donors",
-            "Num H Acceptors": "Number of Hydrogen Bond Acceptors",
-            "Num Rotatable Bonds": "Number of Rotatable Bonds",
-            "Carbon Count": "Carbon Count",
-            "Oxygen Count": "Oxygen Count",
-        }
+    # Evaluate Rule of 5 criteria
+    mw_status = "Rule of 5 not violated (less than or equal to 500)" if molecular_weight <= 500 else "Rule of 5 violated (greater than 500)"
+    logP_status = "Rule of 5 not violated (less than or equal to 5)" if logP <= 5 else "Rule of 5 violated (greater than 5)"
+    h_donor_status = "Rule of 5 not violated (less than or equal to 5)" if num_h_donors <= 5 else "Rule of 5 violated (greater than 5)"
+    h_acceptor_status = "Rule of 5 not violated (less than or equal to 10)" if num_h_acceptors <= 10 else "Rule of 5 violated (greater than 10)"
 
-        formatted_descriptors = ""
-        for key, value in descriptors.items():
-            formatted_descriptors += f"{aliases[key]}: {value}\n"
+    # Format output
+    formatted_descriptors = (
+        f"Molecular Weight = {molecular_weight:.2f}: {mw_status}\n"
+        f"LogP = {logP:.2f}: {logP_status}\n"
+        f"Number of Hydrogen Bond Donors = {num_h_donors}: {h_donor_status}\n"
+        f"Number of Hydrogen Bond Acceptors = {num_h_acceptors}: {h_acceptor_status}\n"
+    )
 
-        return formatted_descriptors
+    return formatted_descriptors
+
 
 
 def predict_pIC50(smiles):
@@ -173,9 +151,15 @@ def predict_pIC50(smiles):
     y_pred = loaded_model.predict(X)
     predicted_value = y_pred[0]
     predicted_value = format(predicted_value, ".2f")
-    return f"Predicted pIC50: {predicted_value}"
+    predicted_value = float(predicted_value)  # Convert back to float
+    if predicted_value > 6:
+        return f"Predicted pIC50 = {predicted_value}: Active (Strong Inhibition [greater than 6])"
+    elif 5 <= predicted_value <= 6:  # Corrected range condition
+        return f"Predicted pIC50 = {predicted_value}: Moderate Inhibition (from 5 to 6)"
+    else:
+        return f"Predicted pIC50 = {predicted_value}: Inactive (Weak or No Inhibition [less than 5])"   
 
-def prot_lig_docking(smiles):
+def prot_lig_docking(smiles, num_poses=10, exhaustiveness=10):
     """
     Docking procedure is performed by Autodock Vina on the Oestrogen Receptor alpha protein, pdb_id: 5gs4.
     
@@ -201,74 +185,142 @@ def prot_lig_docking(smiles):
     AllChem.EmbedMolecule(mol, randomSeed=42)
 
     # Save the ligand to an SDF file
-    sdf_file = os.path.join(current_directory, "ligand_clean.sdf")
+    sdf_file = os.path.join(current_directory, "ligand_initial.sdf")
     writer = SDWriter(sdf_file)
     writer.write(mol)
     writer.close()
 
-    # Prepare ligand using Open Babel
-    ligand_pdbqt = os.path.join(current_directory, "ligand.pdbqt")
-    mol = next(pybel.readfile("sdf", sdf_file))
-    mol.write("pdbqt", ligand_pdbqt, overwrite=True)
+    # Prepare ligand using meeko
+    ligand_pdbqt = os.path.join(current_directory, "ligand_prepared.pdbqt")
+    subprocess.run(["mk_prepare_ligand.py", "-i", sdf_file, "-o", ligand_pdbqt], check=True)
+    
 
     # Load the docking protein
-    docking_protein = os.path.join(script_dir, "5gs4.pdbqt")
-    cmd.load(filename=docking_protein, format="pdb", object="prot")
-    cmd.load(filename=sdf_file, format="sdf", object="lig")
-    center, size = getbox(selection="lig", extending=5.0, software="vina")
-    cmd.delete("all")
+    docking_protein = os.path.join(script_dir, "7te7_prepared.pdbqt")
+    original_protein = os.path.join(script_dir, "7te7_original.pdb")
+    original_structure = mda.Universe(original_protein)
+    ligand_mda = original_structure.select_atoms("resname I0V")
+
+    # Get the center of the ligand as the "pocket center"
+    pocket_center = ligand_mda.center_of_geometry()
+    ligand_box = ligand_mda.positions.max(axis=0) - ligand_mda.positions.min(axis=0) + 5
+
+    ## convert ligand_box to list
+    pocket_center = pocket_center.tolist()
+    ligand_box = ligand_box.tolist() 
 
     # Initialize Vina
     v = Vina(sf_name="vina")
     v.set_receptor(docking_protein)
     v.set_ligand_from_file(ligand_pdbqt)
-    v.compute_vina_maps(
-        center=[center["center_x"], center["center_y"], center["center_z"]],
-        box_size=[size["size_x"], size["size_y"], size["size_z"]],
-    )
+    v.compute_vina_maps(center=pocket_center, box_size=ligand_box)
 
     # Perform docking
-    v.dock(exhaustiveness=10, n_poses=10)
+    v.dock(exhaustiveness=exhaustiveness, n_poses=num_poses)
 
     # Save docking results
-    vina_out_file = os.path.join(current_directory, "5gs4_ligand_vina_out.pdbqt")
-    sdf_file = os.path.join(current_directory, "5gs4_ligand_vina_out.sdf")
-    v.write_poses(vina_out_file, n_poses=10, overwrite=True)
-    pdbqt_to_sdf(
-        pdbqt_file=vina_out_file,
-        output=sdf_file,
-    )
+    vina_out_file = os.path.join(current_directory, "ligand_docked.pdbqt")
+    sdf_file = os.path.join(current_directory, "ligand_docked.sdf")
+    v.write_poses(vina_out_file, n_poses=num_poses, overwrite=True)
+    subprocess.run(["mk_export.py", vina_out_file, "-s", sdf_file], check=True)
 
     # Process docking results
-    results = Chem.SDMolSupplier(sdf_file)
-    if not results or len(results) == 0:
-        return "No docking results found"
-
     try:
-        docking_score = results[0].GetProp("Score")  # Extract docking score
-        return f"Docking score: {docking_score}"
+        docking_score = v.score()  # Extract docking score
+        docking_score_value = docking_score[0]  # Get the actual score
+        
+        # Classify Docking Score
+        if docking_score_value <= -9.0:
+            docking_interpretation = "Very Strong Binding (less than -9.0 kcal/mol)"
+        elif -9.0 < docking_score_value <= -7.0:
+            docking_interpretation = "Strong Binding (Between -9.0 to -7.0 kcal/mol)"
+        elif -7.0 < docking_score_value <= -5.0:
+            docking_interpretation = "Moderate Binding (Between -7.0 to -5.0 kcal/mol)"
+        else:
+            docking_interpretation = "Weak or No Significant Binding (more than -5.0 kcal/mol)"
+
+        return f"Docking score = {docking_score_value:.3f} kcal/mol: {docking_interpretation}"
+
     except Exception as e:
         return f"Error during docking: {str(e)}"
 
 
-# Run PyMOL with the specified PDBQT files
-def vizualize_dock_results():
-    """Visualization and protein-ligand interaction in pymol. Users should only run this function after running prot_lig_docking function.
+def visualize_dock_results(presentation='cartoon', show_iAA=True, color='green'):
+    """Visualizes a docking result in PyMOL, keeping only interacting residues.
 
-    Usage
-    -----
-    from MLDockKit import vizualize_dock_results
-
-    vizualize_dock_results()
+    Parameters:
+    - presentation (str): How to display the receptor (default: 'cartoon').
+    - show_iAA (bool): Option to show interacting amino acids only (default: True).
+    - color (str): Color for the receptor and interacting residues (default: 'green').
     """
+
     script_dir = os.path.dirname(__file__)
     current_directory = os.getcwd()
-    docking_protein = os.path.join(script_dir, "5gs4.pdbqt")
-    vina_out_file = os.path.join(current_directory, "5gs4_ligand_vina_out.pdbqt")
-    return subprocess.run(["pymol", "-Q", docking_protein, vina_out_file])
+    receptor_file = os.path.join(script_dir, "7te7_H_no_HOHandI0V.pdb")
+    ligand_file = os.path.join(current_directory, "ligand_docked.sdf")
+
+    # Ensure required files are available
+    if not os.path.exists(receptor_file) or not os.path.exists(ligand_file):
+        raise ValueError("Both receptor_file and ligand_file must exist.")
+
+    pymol.finish_launching()
+
+    # Load receptor and ligand
+    cmd.load(receptor_file, "receptor")
+    cmd.load(ligand_file, "ligand")
+    
+    # Remove water molecules
+    cmd.remove("resn HOH")
+
+    # Show ligand
+    cmd.show("sticks", "ligand")
+    cmd.color("magenta", "ligand")
+    cmd.set("stick_radius", 0.3, "ligand")
+
+    if show_iAA:
+        # Hide everything except interacting residues and ligand
+        cmd.hide("everything")
+        
+        # Show only interacting residues within 5Å of the ligand
+        cmd.select("interacting_residues", "byres receptor within 5 of ligand")
+        cmd.show('sticks', "interacting_residues")
+        
+        # Apply the user-provided color to interacting residues
+        cmd.color(color, "interacting_residues")
+        
+        # Ensure the ligand remains visible
+        cmd.show("sticks", "ligand")
+        cmd.color("magenta", "ligand")
+
+        # Store unique interacting residues
+        stored.residues = []
+        cmd.iterate("interacting_residues and name CA", 
+                    "stored.residues.append((resi, resn))")
+
+        # Ensure residues were found
+        if stored.residues:
+            for resi, resn in set(stored.residues):
+                cmd.label(f"resi {resi} and name CA", f'"{resn}-{resi}"')
+        else:
+            print("No interacting residues found for labeling.")
+
+    else:
+        cmd.dss("receptor")  # Assign secondary structure if missing
+        cmd.show(presentation, "receptor")
+        cmd.color(color, "receptor")  # Apply the color to the receptor
+
+    # Zoom in on the ligand
+    cmd.zoom("ligand")
 
 
-def MLDockKit(smiles, output_file="MLDockKit_output.txt"):
+def MLDockKit(smiles, 
+              output_file="MLDockKit_output.txt", 
+              presentation='cartoon', 
+              show_iAA=True, 
+              color='green', 
+              num_poses=10, 
+              exhaustiveness=10
+              ):
     """
     Perform the entire molecular modeling pipeline:
     1. Calculate Lipinski descriptors
@@ -277,8 +329,13 @@ def MLDockKit(smiles, output_file="MLDockKit_output.txt"):
     4. Visualize docking results
 
     Params:
-    smiles (str): An rdkit valid canonical SMILES or chemical structure of a compound.
-    output_file (str): File path to save the output.
+    smiles (str): SMILES string for ligand.
+    output_file (str): File path for saving output.
+    presentation (str): How to display the receptor [[e.g., 'surface', 'sticks', 'spheres', 'cartoon', etc.] (default: 'cartoon')].
+    show_iAA (bool): Option to show interacting amino acids only (default: True).
+    color (str): Color for the receptor and interacting residues (default: 'green').
+    num_poses (int): Number of docking poses to generate (default: 10).
+    exhaustiveness (int): Controls search thoroughness (default: 10).
 
     Returns:
     str: Summary of the pipeline execution.
@@ -288,7 +345,7 @@ def MLDockKit(smiles, output_file="MLDockKit_output.txt"):
             f.write("." * 200 + "\n")
             # Calculate Lipinski descriptors
             lipinski_descriptors = calculate_lipinski_descriptors(smiles)
-            f.write("Lipinski Descriptors"+ "\n")
+            f.write("Lipinski Descriptors/Rule of 5"+ "\n")
             f.write(str(lipinski_descriptors))
             f.write("\n" + "." * 200 + "\n")
             print("\n" +'###Computation of Lipinsky descriptors complete'+"\n")
@@ -300,32 +357,27 @@ def MLDockKit(smiles, output_file="MLDockKit_output.txt"):
             print('###Prediction of pIC50 complete'+"\n")
 
             # Perform protein-ligand docking
-            docking_result = prot_lig_docking(smiles)
-            #f.write("\n")
+            docking_result = prot_lig_docking(smiles, num_poses=num_poses, exhaustiveness=exhaustiveness)
             f.write(docking_result + "\n")
             f.write("\n" + "." * 200 + "\n")
             print("\n" + '###Docking process complete'+"\n")
-            print("##MLDockKit output is saved to " + output_file + "and image rentered in pymol"+"\n")
-            #f.write("\n"+"\n")
+            print("##MLDockKit output is saved to " + output_file + "and image rendered in pymol"+"\n")
 
             # Delete files in the script directory
             script_dir = os.path.dirname(__file__)
+            current_directory = os.getcwd()
             delete_files_with_extension(script_dir, [".smi", ".csv"])
-            # Delete files in the working directory
+            # Remove ligand files
+            subprocess.run(["rm", "ligand_initial.sdf", "ligand_prepared.pdbqt"], check=True)
+            # Copy receptor file (fixed missing comma in subprocess.run argument list)
+            subprocess.run(["cp", os.path.join(script_dir, "7te7_H_no_HOHandI0V.pdb"), "7te7_receptor.pdb"], check=True)
+
+
+        # Visualize docking results, passing the user-defined parameters
+        visualize_dock_results(presentation=presentation,show_iAA=show_iAA,color=color)
         
-
-        # Iterate over files in the directory
-        for file in os.listdir(current_directory):
-            if file in file_paths:
-                file_path = os.path.join(current_directory, file)  # Get the full path
-                os.remove(file_path)    
-
-
-        # Visualize docking results
-        vizualize_dock_results()
-
     except Exception as e:
         return f"Error occurred: {str(e)}"
 
 
-
+            
